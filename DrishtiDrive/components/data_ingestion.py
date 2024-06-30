@@ -38,15 +38,21 @@ class DataIngestion:
         try:
             # Get the URL and download directory from the configuration
             url = self.data_ingestion_config.data_download_url
-            download_url = self.data_ingestion_config.data_ingestion_dir
+            download_dir = self.data_ingestion_config.data_ingestion_dir
 
             # Create the download directory if it doesn't exist
-            os.makedirs(download_url, exist_ok=True)
+            os.makedirs(download_dir, exist_ok=True)
             
             # Set the name of the zip file
             data_file_name = 'data.zip'
             # Construct the path to the zip file
-            zip_file_path = os.path.join(download_url, data_file_name)
+            zip_file_path = os.path.join(download_dir, data_file_name)
+
+            # Check if the file already exists
+            if os.path.exists(zip_file_path):
+                logging.info(f"File already exists at : [{zip_file_path}]. Skipping download.")
+                return zip_file_path
+            
             # Log the download operation
             logging.info(f"Downloading file from : [{url}] into : [{zip_file_path}]")
             
@@ -55,7 +61,7 @@ class DataIngestion:
             # Construct the prefix for the download URL
             prefix = f'https://drive.google.com/uc?export=download&id='
             # Download the file using gdown
-            gdown.download(prefix + file_id, zip_file_path)
+            gdown.download(prefix + file_id, zip_file_path, quiet=False)
             # Log the successful download
             logging.info(f"File : [{zip_file_path}] has been downloaded successfully.")
             # Return the path to the downloaded zip file
@@ -120,4 +126,3 @@ class DataIngestion:
         
         except Exception as e:
             raise AppException(e, sys)
-
