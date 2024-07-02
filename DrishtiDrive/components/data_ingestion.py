@@ -8,6 +8,8 @@ from DrishtiDrive.exception import AppException
 from DrishtiDrive.entity.config_entity import DataIngestionConfig
 from DrishtiDrive.entity.artifacts_entity import DataIngestionArtifact
 
+import shutil
+
 
 class DataIngestion:
     """
@@ -86,19 +88,32 @@ class DataIngestion:
             feature_store_path = self.data_ingestion_config.feature_store_file_path
             # Create the feature store directory if it doesn't exist
             os.makedirs(feature_store_path, exist_ok=True)
+            
             # Open the zip file for reading
             with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
-                # Extract all files from the zip file to the feature store directory
-                zip_ref.extractall(feature_store_path)
-                # Log the successful extraction
-                logging.info(f"Extracting Zip File: [{zip_file_path}] into dir: {feature_store_path}")
+                # Extract all files from the zip file
+                for member in zip_ref.namelist():
+                    # Strip the leading directory if it exists
+                    member_name = member.split('/', 1)[-1]  # this will remove the top-level directory
+                    # Construct the target file path
+                    target_path = os.path.join(feature_store_path, member_name)
+                    # Check if it's a directory
+                    if member.endswith('/'):
+                        os.makedirs(target_path, exist_ok=True)
+                    else:
+                        # Extract the file
+                        with zip_ref.open(member) as source, open(target_path, 'wb') as target:
+                            shutil.copyfileobj(source, target)
+                        logging.info(f"Extracted {member} to {target_path}")
+            
             # Log the successful extraction
-            logging.info(f"Data has been extracted successfully.")
+            logging.info(f"Data has been extracted successfully to {feature_store_path}")
             # Return the path to the extracted directory
             return feature_store_path
-        
+
         except Exception as e:
             raise AppException(e, sys)
+
         
     
     def initiate_data_ingestion(self) -> DataIngestionArtifact:
