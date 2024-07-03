@@ -72,3 +72,12 @@ class DataValidationConfig:
 
 
     
+@dataclass
+class ModelTrainerConfig:
+    model_trainer_dir: str = os.path.join(
+        training_pipeline_config.artifacts_dir, 'model_trainer'
+    )
+    weight_name = 'yolov5s.pt'
+    no_epochs = 500
+    batch_size = 32
+    
