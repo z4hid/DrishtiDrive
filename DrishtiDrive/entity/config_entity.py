@@ -74,6 +74,15 @@ class DataValidationConfig:
     
 @dataclass
 class ModelTrainerConfig:
+    """
+    Configuration class for model training.
+
+    Attributes:
+        model_trainer_dir (str): The directory for model training.
+        weight_name (str): The name of the weight file.
+        no_epochs (int): The number of epochs for training.
+        batch_size (int): The batch size for training.
+    """
     model_trainer_dir: str = os.path.join(
         training_pipeline_config.artifacts_dir, 'model_trainer'
     )
