@@ -24,9 +24,11 @@ class DataIngestion:
             data_ingestion_config (DataIngestionConfig): Data ingestion configuration.
         """
         try:
+            # Assign the provided data ingestion configuration to the instance variable
             self.data_ingestion_config = data_ingestion_config
 
         except Exception as e:
+            # If an exception occurs, raise an AppException with the given exception and sys
             raise AppException(e, sys)
     
     
@@ -52,6 +54,7 @@ class DataIngestion:
 
             # Check if the file already exists
             if os.path.exists(zip_file_path):
+                # If the file exists, log a message and return the path to the file
                 logging.info(f"File already exists at : [{zip_file_path}]. Skipping download.")
                 return zip_file_path
             
@@ -70,6 +73,7 @@ class DataIngestion:
             return zip_file_path
 
         except Exception as e:
+            # If an exception occurs, raise an AppException with the given exception and sys
             raise AppException(e, sys)
         
     
@@ -112,6 +116,7 @@ class DataIngestion:
             return feature_store_path
 
         except Exception as e:
+            # If an exception occurs, raise an AppException with the given exception and sys
             raise AppException(e, sys)
 
         
@@ -140,4 +145,6 @@ class DataIngestion:
             return data_ingestion_artifact
         
         except Exception as e:
+            # If an exception occurs, raise an AppException with the given exception and sys
             raise AppException(e, sys)
+
