@@ -1,13 +1,12 @@
 import os
 import sys
 import yaml
-from shutil import copyfile
+import subprocess
 from DrishtiDrive.utils.main_utils import read_yaml_file
 from DrishtiDrive.exception import AppException
 from DrishtiDrive.logger import logging
 from DrishtiDrive.entity.config_entity import ModelTrainerConfig
 from DrishtiDrive.entity.artifacts_entity import ModelTrainerArtifact
-from yolov5 import train
 
 class ModelTrainer:
     def __init__(self, model_trainer_config: ModelTrainerConfig, feature_store_file_path: str):
@@ -33,6 +32,7 @@ class ModelTrainer:
             
             # 2. Read and update data.yaml
             with open(data_yaml_path, 'r') as stream:
+                
                 yaml_data = yaml.safe_load(stream)
                 num_classes = yaml_data['nc']
                 logging.info(f"Number of classes: {num_classes}")
@@ -54,28 +54,29 @@ class ModelTrainer:
             with open(custom_model_config_path, 'w') as outfile:
                 yaml.dump(config, outfile)
             
-            # 4. Prepare training arguments
-            args = [
-                '--img', '416',
-                '--batch', str(self.model_trainer_config.batch_size),
-                '--epochs', str(self.model_trainer_config.no_epochs),
-                '--data', os.path.abspath(data_yaml_path),
-                '--cfg', os.path.abspath(custom_model_config_path),
-                '--weights', self.model_trainer_config.weight_name,
-                '--name', 'exp',
-                '--cache'
-            ]
-            logging.info(f"Training arguments: {args}")
+            # 4. Prepare training command
+            train_command = (
+                f'cd yolov5/ && python train.py '
+                f'--img 416 '
+                f'--batch {self.model_trainer_config.batch_size} '
+                f'--epochs {self.model_trainer_config.no_epochs} '
+                f'--data {os.path.abspath(data_yaml_path)} '
+                f'--cfg {os.path.abspath(custom_model_config_path)} '
+                f'--weights {self.model_trainer_config.weight_name} '
+                f'--name yolov5s_results '
+                f'--cache'
+            )
+            logging.info(f"Training command: {train_command}")
             
-            # 5. Train the model
-            logging.info("Starting model training...")
-            train.run(args=args)
+            os.system(train_command)
             
-            # 6. Check for best.pt file in the correct directory
-            best_model_path = "yolov5/runs/train/exp/weights/best.pt"
+
+
+            # 6. Check for best.pt file
+            best_model_path = "yolov5/runs/train/yolov5s_results/weights/best.pt"
             if not os.path.exists(best_model_path):
                 logging.error(f"Best model not found: {best_model_path}")
-                logging.info("Contents of yolov5/runs/train/exp/weights/:")
+                logging.info("Contents of yolov5/runs/train/yolov5s_results/weights/:")
                 weights_dir = os.path.dirname(best_model_path)
                 if os.path.exists(weights_dir):
                     for item in os.listdir(weights_dir):
@@ -85,10 +86,9 @@ class ModelTrainer:
                 raise FileNotFoundError(f"Best model not found: {best_model_path}")
             
             # 7. Copy best model
-            logging.info(f"Copying best model to yolov5/best.pt")
-            copyfile(best_model_path, "yolov5/best.pt")
+            os.system(f"cp {best_model_path} yolov5/")
             os.makedirs(self.model_trainer_config.model_trainer_dir, exist_ok=True)
-            copyfile(best_model_path, os.path.join(self.model_trainer_config.model_trainer_dir, "best.pt"))
+            os.system(f"cp {best_model_path} {self.model_trainer_config.model_trainer_dir}/")
             
             model_trainer_artifact = ModelTrainerArtifact(
                 trained_model_file_path="yolov5/best.pt",
