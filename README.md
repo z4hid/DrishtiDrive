@@ -6,3 +6,7 @@ This is a Github repository for a Python application that uses YOLOv5 to perform
 
 The application can be used to detect objects in real-time from a webcam or video file. It can also be used to fine-tune the model on a custom dataset.
 
+## App Demo
+
+![DrishtiDrive demo](https://github.com/z4hid/DrishtiDrive/blob/main/assets/images/DrishtiDriveDemo.gif)
+
