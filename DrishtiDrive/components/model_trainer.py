@@ -10,6 +10,16 @@ from DrishtiDrive.entity.artifacts_entity import ModelTrainerArtifact
 
 class ModelTrainer:
     def __init__(self, model_trainer_config: ModelTrainerConfig, feature_store_file_path: str):
+        """
+        Initializes a new instance of the `ModelTrainer` class.
+
+        Args:
+            model_trainer_config (ModelTrainerConfig): The configuration for the model trainer.
+            feature_store_file_path (str): The path to the feature store file.
+
+        Raises:
+            AppException: If an error occurs during initialization.
+        """
         try:
             self.model_trainer_config = model_trainer_config
             self.feature_store_file_path = feature_store_file_path
@@ -17,6 +27,24 @@ class ModelTrainer:
             raise AppException(e, sys)
 
     def initiate_model_trainer(self) -> ModelTrainerArtifact:
+        """
+        Initializes the model trainer by performing the following steps:
+        
+        1. Checks for the existence of the data.yaml file in the specified feature store file path.
+        2. Reads and updates the data.yaml file by updating the paths to be absolute.
+        3. Prepares the model configuration by reading the corresponding YAML file and updating the number of classes.
+        4. Prepares the training command by constructing the command string using the specified parameters.
+        5. Executes the training command using the `os.system()` function.
+        6. Checks for the existence of the best.pt file in the specified path.
+        7. Copies the best model to the specified model trainer directory.
+        
+        Returns:
+            ModelTrainerArtifact: An instance of the ModelTrainerArtifact class containing the path to the trained model file.
+        
+        Raises:
+            FileNotFoundError: If the data.yaml file or the best.pt file is not found.
+            AppException: If an error occurs during the initialization process.
+        """
         logging.info("Entered initiate_model_trainer method of ModelTrainer class")
         try:
             # 1. Check for data.yaml file
