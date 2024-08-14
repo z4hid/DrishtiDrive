@@ -31,27 +31,6 @@ def home():
     return render_template('index.html')
 
 
-# @app.route('/predict', methods=['POST', 'GET'])
-# @cross_origin()
-# def predictRoute():
-#     try:
-#         image = request.json['image']
-#         decodeImage(image, clApp.filename)
-#         os.system("cd yolov5/ && python detect.py --weights best.pt --img 416 --conf 0.5 --source ../data/inputimage.jpg")
-#         opencodedbase64 = encodeImageIntoBase64("yolov5/runs/detect/exp/inputimage.jpg")
-#         result = {"image": opencodedbase64.decode('utf-8')}
-#         os.system("rm -rf yolov5/runs")
-#     except ValueError as val:
-#         print(val)
-#         return Response("Value not found inside  json data")
-#     except KeyError:
-#         return Response("Key value error incorrect key passed")
-#     except Exception as e:
-#         print(e)
-#         result = "Invalid input"
-
-#     return jsonify(result)
-
 @app.route('/predict', methods=['POST', 'GET'])
 @cross_origin()
 def predictRoute():
@@ -90,11 +69,6 @@ def predictRoute():
         return Response(str(e), status=500)
 
     return jsonify(result)
-
-
-
-
-
 
 @app.route("/live", methods=['GET'])
 @cross_origin()
